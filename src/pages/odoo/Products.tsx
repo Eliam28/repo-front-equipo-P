@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ProductCard from "./Cards/ProdcutCard";
+import ProductCard from "./Components/ProdcutCard";
 
 type Product = {
   id: number;
@@ -34,7 +34,7 @@ function Products() {
   if (loading) return <h2>Cargando productos...</h2>;
   if (error) return <h2>Error: {error}</h2>;
 
-  return (
+ return (
   <div>
     {products.map((product) => (
       <ProductCard key={product.id} product={product} />
