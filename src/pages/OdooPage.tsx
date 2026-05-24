@@ -210,7 +210,11 @@ export function OdooPage() {
         const productsData =
           await fetchOdooProducts();
 
-        setProducts(productsData);
+        const sortedProducts = [
+          ...productsData,
+        ].sort((a, b) => a.id - b.id);
+
+        setProducts(sortedProducts);
       }
     } catch (requestError) {
       setError(
