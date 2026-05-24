@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
 import ProductCard from "./Components/ProdcutCard";
 
-type Product = {
-  id: number;
-  name: string;
-  list_price: number;
-  default_code?: string | null;
-};
+import type { OdooProduct } from "../../types/Product";
 
 function Products() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<OdooProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -22,7 +17,7 @@ function Products() {
 
         return res.json();
       })
-      .then((data: Product[]) => {
+      .then((data: OdooProduct[]) => {
         const sortedProducts = data.sort((a, b) => a.id - b.id);
 
         setProducts(sortedProducts);

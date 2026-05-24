@@ -1,12 +1,7 @@
-type Product = {
-  id: number;
-  name: string;
-  list_price: number;
-  default_code?: string | null;
-};
+import type { OdooProduct } from "../../../types/Product";
 
 type ProductCardProps = {
-  product: Product;
+  product: OdooProduct;
 };
 
 function ProductCard({ product }: ProductCardProps) {
