@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import OdooLayout from "./pages/odoo/OdooLayout";
 import PrestashopLayout from "./pages/prestashop/PrestashopLayout";
+import WordpressLayout from "./pages/wordpress/WordpressLayout";
 
 import Products from "./pages/odoo/Products";
 import Orders from "./pages/odoo/Orders";
@@ -9,6 +10,7 @@ import Providers from "./pages/odoo/Providers";
 import Categories from "./pages/odoo/Categories";
 
 import P_Products from "./pages/prestashop/P_Products";
+import W_Products from "./pages/wordpress/W_Prodcuts";
 
 function App() {
   return (
@@ -27,6 +29,13 @@ function App() {
         <Route index element={<Navigate to="products" />} />
         <Route path="products" element={<P_Products />} />
       </Route>
+
+       <Route path="/wordpress" element={<WordpressLayout />}>
+        <Route index element={<Navigate to="products" />} />
+
+        <Route path="products" element={<W_Products />}/>
+      </Route>
+
     </Routes>
   );
 }

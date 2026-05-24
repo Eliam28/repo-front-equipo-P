@@ -1,15 +1,15 @@
 import { Outlet } from "react-router-dom";
 
 import Sidebar from "../../layout/Sidebar";
-import PrestashopNavbar from "../../layout/PrestashopNavbar";
+import WordpressNavbar from "../../layout/WordpressNavbar";
 
-function PrestashopLayout() {
+function WordpressLayout() {
   return (
     <div className="dashboard">
       <Sidebar />
 
       <main className="main-content">
-        <PrestashopNavbar />
+        <WordpressNavbar />
 
         <div className="page-content">
           <Outlet />
@@ -19,4 +19,4 @@ function PrestashopLayout() {
   );
 }
 
-export default PrestashopLayout;
+export default WordpressLayout;

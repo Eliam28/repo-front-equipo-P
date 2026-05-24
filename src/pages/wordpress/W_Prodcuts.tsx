@@ -1,7 +1,7 @@
-function P_Products() {
+function W_Products() {
   return (
     <div>
-      <h1>Productos Prestashop</h1>
+      <h1>Productos Wordpress</h1>
 
       <p>
         Esta sección se encuentra actualmente
@@ -11,4 +11,4 @@ function P_Products() {
   );
 }
 
-export default P_Products;
+export default W_Products;
