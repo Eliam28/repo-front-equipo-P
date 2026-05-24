@@ -19,10 +19,13 @@ function Products() {
         if (!res.ok) {
           throw new Error(`Error ${res.status}`);
         }
+
         return res.json();
       })
       .then((data: Product[]) => {
-        setProducts(data);
+        const sortedProducts = data.sort((a, b) => a.id - b.id);
+
+        setProducts(sortedProducts);
         setLoading(false);
       })
       .catch((err: Error) => {
@@ -32,15 +35,19 @@ function Products() {
   }, []);
 
   if (loading) return <h2>Cargando productos...</h2>;
+
   if (error) return <h2>Error: {error}</h2>;
 
- return (
-  <div>
-    {products.map((product) => (
-      <ProductCard key={product.id} product={product} />
-    ))}
-  </div>
-);
+  return (
+    <div>
+      {products.map((product) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default Products;
