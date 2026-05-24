@@ -8,6 +8,8 @@ import Orders from "./pages/odoo/Orders";
 import Providers from "./pages/odoo/Providers";
 import Categories from "./pages/odoo/Categories";
 
+import P_Products from "./pages/prestashop/P_Products";
+
 function App() {
   return (
     <Routes>
@@ -23,7 +25,7 @@ function App() {
 
       <Route path="/prestashop" element={<PrestashopLayout />}>
         <Route index element={<Navigate to="products" />} />
-        <Route path="products" element={<h1>Prestashop Productos</h1>} />
+        <Route path="products" element={<P_Products />} />
       </Route>
     </Routes>
   );

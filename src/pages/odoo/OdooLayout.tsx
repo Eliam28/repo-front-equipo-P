@@ -4,13 +4,36 @@ import OdooNavbar from "../../layout/OdooNavbar";
 
 function OdooLayout() {
   return (
-    <div className="dashboard">
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       <Sidebar />
 
-      <main>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          minWidth: 0, // ← ESTA ES LA CLAVE
+        }}
+      >
         <OdooNavbar />
-        <Outlet />
-      </main>
+
+        <main
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "20px",
+          }}
+        >
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
