@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -10,15 +6,14 @@ import { OdooEndpointSection } from "../components/OdooEndpointSection";
 import { OdooResponseTable } from "../components/OdooResponseTable";
 import { PageFrame } from "../components/PageFrame";
 
-import {
-  fetchOdooOrders,
-  type OdooOrder,
-} from "../services/odoo/orders";
+import { fetchOdooOrders, type OdooOrder } from "../services/odoo/orders";
+
+import { fetchOdooProducts, type OdooProduct } from "../services/odoo/products";
 
 import {
-  fetchOdooProducts,
-  type OdooProduct,
-} from "../services/odoo/products";
+  ObtenerCategorias,
+  type OdooCategorie,
+} from "../services/odoo/categories";
 
 const odooEndpoints = [
   {
@@ -33,74 +28,91 @@ const odooEndpoints = [
     path: "http://127.0.0.1:8000/api/odoo/products",
     active: true,
   },
+  {
+    id: "categories",
+    label: "obtener categorias",
+    path: "http://127.0.0.1:8000/api/odoo/categories/",
+    active: true,
+  },
 ] as const;
 
-type OdooEndpointId =
-  (typeof odooEndpoints)[number]["id"];
+type OdooEndpointId = (typeof odooEndpoints)[number]["id"];
 
-function OrdersTable({
-  orders,
-}: {
-  orders: OdooOrder[];
-}) {
+function OrdersTable({ orders }: { orders: OdooOrder[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-black text-left text-sm">
         <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
           <tr>
-            <th className="px-5 py-3 font-medium">
-              Orden
-            </th>
+            <th className="px-5 py-3 font-medium">Orden</th>
 
-            <th className="px-5 py-3 font-medium">
-              Cliente
-            </th>
+            <th className="px-5 py-3 font-medium">Cliente</th>
 
-            <th className="px-5 py-3 font-medium">
-              Fecha
-            </th>
+            <th className="px-5 py-3 font-medium">Fecha</th>
 
-            <th className="px-5 py-3 font-medium">
-              Total
-            </th>
+            <th className="px-5 py-3 font-medium">Total</th>
 
-            <th className="px-5 py-3 font-medium">
-              Estado
-            </th>
+            <th className="px-5 py-3 font-medium">Estado</th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-black/10 text-black">
           {orders.map((order) => (
-            <tr
-              key={order.id}
-              className="transition hover:bg-black/5"
-            >
-              <td className="px-5 py-4 font-medium text-black">
-                {order.name}
-              </td>
+            <tr key={order.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4 font-medium text-black">{order.name}</td>
+
+              <td className="px-5 py-4">{order.partner_name}</td>
+
+              <td className="px-5 py-4">{order.date_order}</td>
 
               <td className="px-5 py-4">
-                {order.partner_name}
+                {new Intl.NumberFormat("es-MX", {
+                  style: "currency",
+                  currency: "MXN",
+                  maximumFractionDigits: 2,
+                }).format(order.amount_total)}
               </td>
 
-              <td className="px-5 py-4">
-                {order.date_order}
-              </td>
+              <td className="px-5 py-4">{order.state}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ProductsTable({ products }: { products: OdooProduct[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">ID</th>
+
+            <th className="px-5 py-3 font-medium">Nombre</th>
+
+            <th className="px-5 py-3 font-medium">Código</th>
+
+            <th className="px-5 py-3 font-medium">Precio</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-black/10 text-black">
+          {products.map((product) => (
+            <tr key={product.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{product.id}</td>
+
+              <td className="px-5 py-4 font-medium">{product.name}</td>
+
+              <td className="px-5 py-4">{product.default_code ?? "-"}</td>
 
               <td className="px-5 py-4">
-                {new Intl.NumberFormat(
-                  "es-MX",
-                  {
-                    style: "currency",
-                    currency: "MXN",
-                    maximumFractionDigits: 2,
-                  },
-                ).format(order.amount_total)}
-              </td>
-
-              <td className="px-5 py-4">
-                {order.state}
+                {new Intl.NumberFormat("es-MX", {
+                  style: "currency",
+                  currency: "MXN",
+                  maximumFractionDigits: 2,
+                }).format(product.list_price)}
               </td>
             </tr>
           ))}
@@ -110,62 +122,32 @@ function OrdersTable({
   );
 }
 
-function ProductsTable({
-  products,
-}: {
-  products: OdooProduct[];
-}) {
+function CategoriesTable({ categories }: { categories: OdooCategorie[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-black text-left text-sm">
         <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
           <tr>
-            <th className="px-5 py-3 font-medium">
-              ID
-            </th>
+            <th className="px-5 py-3 font-medium">ID</th>
 
-            <th className="px-5 py-3 font-medium">
-              Nombre
-            </th>
+            <th className="px-5 py-3 font-medium">Nombre</th>
 
-            <th className="px-5 py-3 font-medium">
-              Código
-            </th>
+            <th className="px-5 py-3 font-medium">Nombre completo</th>
 
-            <th className="px-5 py-3 font-medium">
-              Precio
-            </th>
+            <th className="px-5 py-3 font-medium">Padre</th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-black/10 text-black">
-          {products.map((product) => (
-            <tr
-              key={product.id}
-              className="transition hover:bg-black/5"
-            >
-              <td className="px-5 py-4">
-                {product.id}
-              </td>
+          {categories.map((category) => (
+            <tr key={category.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{category.id}</td>
 
-              <td className="px-5 py-4 font-medium">
-                {product.name}
-              </td>
+              <td className="px-5 py-4 font-medium">{category.name}</td>
 
-              <td className="px-5 py-4">
-                {product.default_code ?? "-"}
-              </td>
+              <td className="px-5 py-4">{category.complete_name}</td>
 
-              <td className="px-5 py-4">
-                {new Intl.NumberFormat(
-                  "es-MX",
-                  {
-                    style: "currency",
-                    currency: "MXN",
-                    maximumFractionDigits: 2,
-                  },
-                ).format(product.list_price)}
-              </td>
+              <td className="px-5 py-4">{category.parent_name ?? "-"}</td>
             </tr>
           ))}
         </tbody>
@@ -175,20 +157,15 @@ function ProductsTable({
 }
 
 export function OdooPage() {
-  const [orders, setOrders] = useState<
-    OdooOrder[]
-  >([]);
+  const [orders, setOrders] = useState<OdooOrder[]>([]);
 
-  const [products, setProducts] = useState<
-    OdooProduct[]
-  >([]);
+  const [products, setProducts] = useState<OdooProduct[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [categories, setCategories] = useState<OdooCategorie[]>([]);
 
-  const [error, setError] = useState<
-    string | null
-  >(null);
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedEndpoint, setSelectedEndpoint] =
     useState<OdooEndpointId>("orders");
@@ -200,21 +177,27 @@ export function OdooPage() {
 
     try {
       if (selectedEndpoint === "orders") {
-        const ordersData =
-          await fetchOdooOrders();
+        const ordersData = await fetchOdooOrders();
 
         setOrders(ordersData);
       }
 
       if (selectedEndpoint === "products") {
-        const productsData =
-          await fetchOdooProducts();
+        const productsData = await fetchOdooProducts();
 
-        const sortedProducts = [
-          ...productsData,
-        ].sort((a, b) => a.id - b.id);
+        const sortedProducts = [...productsData].sort((a, b) => a.id - b.id);
 
         setProducts(sortedProducts);
+      }
+
+      if (selectedEndpoint === "categories") {
+        const categoriesData = await ObtenerCategorias();
+
+        const sortedCategories = [...categoriesData].sort(
+          (a, b) => a.id - b.id,
+        );
+
+        setCategories(sortedCategories);
       }
     } catch (requestError) {
       setError(
@@ -234,8 +217,7 @@ export function OdooPage() {
   }, [loadData]);
 
   const currentEndpoint = odooEndpoints.find(
-    (endpoint) =>
-      endpoint.id === selectedEndpoint,
+    (endpoint) => endpoint.id === selectedEndpoint,
   );
 
   return (
@@ -265,19 +247,17 @@ export function OdooPage() {
     >
       <div className="space-y-4">
         <OdooEndpointSection
-          selectedEndpoint={
-            selectedEndpoint
-          }
+          selectedEndpoint={selectedEndpoint}
           onSelectEndpoint={(value) =>
-            setSelectedEndpoint(
-              value as OdooEndpointId,
-            )
+            setSelectedEndpoint(value as OdooEndpointId)
           }
           options={odooEndpoints}
           title={
             selectedEndpoint === "orders"
               ? "Órdenes"
-              : "Productos"
+              : selectedEndpoint === "products"
+                ? "Productos"
+                : "Categorías"
           }
           link={currentEndpoint?.path ?? ""}
         >
@@ -285,31 +265,36 @@ export function OdooPage() {
             title={
               selectedEndpoint === "orders"
                 ? "Órdenes"
-                : "Productos"
+                : selectedEndpoint === "products"
+                  ? "Productos"
+                  : "Categorías"
             }
             loading={loading}
             error={error}
             emptyMessage="El endpoint respondió con un arreglo vacío."
           >
-            {selectedEndpoint ===
-            "orders" ? (
+            {selectedEndpoint === "orders" ? (
               orders.length === 0 ? (
                 <div className="px-5 py-14 text-center text-sm text-black/60">
                   El endpoint respondió con un arreglo vacío.
                 </div>
               ) : (
-                <OrdersTable
-                  orders={orders}
-                />
+                <OrdersTable orders={orders} />
               )
-            ) : products.length === 0 ? (
+            ) : selectedEndpoint === "products" ? (
+              products.length === 0 ? (
+                <div className="px-5 py-14 text-center text-sm text-black/60">
+                  El endpoint respondió con un arreglo vacío.
+                </div>
+              ) : (
+                <ProductsTable products={products} />
+              )
+            ) : categories.length === 0 ? (
               <div className="px-5 py-14 text-center text-sm text-black/60">
                 El endpoint respondió con un arreglo vacío.
               </div>
             ) : (
-              <ProductsTable
-                products={products}
-              />
+              <CategoriesTable categories={categories} />
             )}
           </OdooResponseTable>
         </OdooEndpointSection>
