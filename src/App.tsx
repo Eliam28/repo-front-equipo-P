@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { HomePage } from "./pages/HomePage.tsx";
 import { OdooPage } from "./pages/OdooPage.tsx";
 import { PlaceholderPage } from "./pages/PlaceholderPage.tsx";
+import { PrestashopPage } from "./pages/PrestashopPage.tsx";
 
 function App() {
   return (
@@ -9,10 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/odoo" element={<OdooPage />} />
-        <Route
-          path="/prestashop"
-          element={<PlaceholderPage title="Prestashop" />}
-        />
+        <Route path="/prestashop" element={<PrestashopPage />}/>
         <Route
           path="/wordpress"
           element={<PlaceholderPage title="WordPress" />}
