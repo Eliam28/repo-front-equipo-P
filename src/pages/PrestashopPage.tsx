@@ -15,11 +15,22 @@ import {
   type PrestashopCustomer,
 } from "../services/prestashop/customers";
 
+import {
+  fetchPrestashopSuppliers,
+  type PrestashopSupplier,
+} from "../services/prestashop/suppliers";
+
 const prestashopEndpoints = [
   {
     id: "customers",
     label: "Obtener clientes",
     path: "http://127.0.0.1:8000/api/prestashop/customers",
+    active: true,
+  },
+  {
+    id: "suppliers",
+    label: "Obtener proveedores",
+    path: "http://127.0.0.1:8000/api/prestashop/suppliers",
     active: true,
   },
 ] as const;
@@ -95,9 +106,79 @@ function CustomersTable({
   );
 }
 
+function SuppliersTable({
+  suppliers,
+}: {
+  suppliers: PrestashopSupplier[];
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">
+              ID
+            </th>
+
+            <th className="px-5 py-3 font-medium">
+              Nombre
+            </th>
+
+            <th className="px-5 py-3 font-medium">
+              Estado
+            </th>
+
+            <th className="px-5 py-3 font-medium">
+              Fecha creación
+            </th>
+
+            <th className="px-5 py-3 font-medium">
+              Última actualización
+            </th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-black/10 text-black">
+          {suppliers.map((supplier) => (
+            <tr
+              key={supplier.id}
+              className="transition hover:bg-black/5"
+            >
+              <td className="px-5 py-4">
+                {supplier.id}
+              </td>
+
+              <td className="px-5 py-4 font-medium">
+                {supplier.name}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.active === "1"
+                  ? "Activo"
+                  : "Inactivo"}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.date_add}
+              </td>
+
+              <td className="px-5 py-4">
+                {supplier.date_upd}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function PrestashopPage() {
   const [customers, setCustomers] =
     useState<PrestashopCustomer[]>([]);
+
+  const [suppliers, setSuppliers] =
+    useState<PrestashopSupplier[]>([]);
 
   const [loading, setLoading] =
     useState(true);
@@ -117,14 +198,27 @@ export function PrestashopPage() {
     setError(null);
 
     try {
-      const customersData =
-        await fetchPrestashopCustomers();
+      if (selectedEndpoint === "customers") {
+        const customersData =
+          await fetchPrestashopCustomers();
 
-      const sortedCustomers = [
-        ...customersData,
-      ].sort((a, b) => a.id - b.id);
+        const sortedCustomers = [
+          ...customersData,
+        ].sort((a, b) => a.id - b.id);
 
-      setCustomers(sortedCustomers);
+        setCustomers(sortedCustomers);
+      }
+
+      if (selectedEndpoint === "suppliers") {
+        const suppliersData =
+          await fetchPrestashopSuppliers();
+
+        const sortedSuppliers = [
+          ...suppliersData,
+        ].sort((a, b) => a.id - b.id);
+
+        setSuppliers(sortedSuppliers);
+      }
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -134,7 +228,7 @@ export function PrestashopPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedEndpoint]);
 
   useEffect(() => {
     void Promise.resolve().then(() => {
@@ -184,22 +278,41 @@ export function PrestashopPage() {
             )
           }
           options={prestashopEndpoints}
-          title="Clientes"
+          title={
+            selectedEndpoint === "customers"
+              ? "Clientes"
+              : "Proveedores"
+          }
           link={currentEndpoint?.path ?? ""}
         >
           <OdooResponseTable
-            title="Clientes"
+            title={
+              selectedEndpoint === "customers"
+                ? "Clientes"
+                : "Proveedores"
+            }
             loading={loading}
             error={error}
             emptyMessage="El endpoint respondió con un arreglo vacío."
           >
-            {customers.length === 0 ? (
+            {selectedEndpoint ===
+            "customers" ? (
+              customers.length === 0 ? (
+                <div className="px-5 py-14 text-center text-sm text-black/60">
+                  El endpoint respondió con un arreglo vacío.
+                </div>
+              ) : (
+                <CustomersTable
+                  customers={customers}
+                />
+              )
+            ) : suppliers.length === 0 ? (
               <div className="px-5 py-14 text-center text-sm text-black/60">
                 El endpoint respondió con un arreglo vacío.
               </div>
             ) : (
-              <CustomersTable
-                customers={customers}
+              <SuppliersTable
+                suppliers={suppliers}
               />
             )}
           </OdooResponseTable>
