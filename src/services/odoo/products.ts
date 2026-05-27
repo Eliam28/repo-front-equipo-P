@@ -5,7 +5,7 @@ export type OdooProduct = {
   default_code: string | null;
 };
 
-const PRODUCTS_URL = "http://127.0.0.1:8000/api/odoo/products";
+const PRODUCTS_URL = "http://127.0.0.1:8000/api/odoo/products/";
 
 export async function fetchOdooProducts(
   signal?: AbortSignal,

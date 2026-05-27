@@ -15,7 +15,7 @@ type PrestashopCustomersResponse = {
   errors: string[];
 };
 
-const CUSTOMERS_URL = "http://127.0.0.1:8000/api/prestashop/customers";
+const CUSTOMERS_URL = "http://127.0.0.1:8000/api/prestashop/customers/";
 
 export async function fetchPrestashopCustomers(signal?: AbortSignal,): Promise<PrestashopCustomer[]> {
   

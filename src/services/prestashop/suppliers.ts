@@ -14,7 +14,7 @@ type PrestashopSuppliersResponse = {
   errors: string[];
 };
 
-const SUPPLIERS_URL = "http://127.0.0.1:8000/api/prestashop/suppliers";
+const SUPPLIERS_URL = "http://127.0.0.1:8000/api/prestashop/suppliers/";
 
 export async function fetchPrestashopSuppliers( signal?: AbortSignal,): Promise<PrestashopSupplier[]> {
   
