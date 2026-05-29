@@ -1,8 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -20,6 +16,11 @@ import {
   type PrestashopSupplier,
 } from "../services/prestashop/suppliers";
 
+import {
+  fetchPrestashopProducts,
+  type PrestashopProduct,
+} from "../services/prestashop/products";
+
 const prestashopEndpoints = [
   {
     id: "customers",
@@ -33,70 +34,53 @@ const prestashopEndpoints = [
     path: "http://127.0.0.1:8000/api/prestashop/suppliers",
     active: true,
   },
+  {
+    id: "products",
+    label: "Obtener productos",
+    path: "http://127.0.0.1:8000/api/prestashop/products",
+    active: true,
+  },
 ] as const;
 
-type PrestashopEndpointId =
-  (typeof prestashopEndpoints)[number]["id"];
+type PrestashopEndpointId = (typeof prestashopEndpoints)[number]["id"];
 
-function CustomersTable({
-  customers,
-}: {
-  customers: PrestashopCustomer[];
-}) {
+function getProductName(product: PrestashopProduct) {
+  return product.name[0]?.value ?? "Sin nombre";
+}
+
+function CustomersTable({ customers }: { customers: PrestashopCustomer[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-black text-left text-sm">
         <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
           <tr>
-            <th className="px-5 py-3 font-medium">
-              ID
-            </th>
+            <th className="px-5 py-3 font-medium">ID</th>
 
-            <th className="px-5 py-3 font-medium">
-              Nombre
-            </th>
+            <th className="px-5 py-3 font-medium">Nombre</th>
 
-            <th className="px-5 py-3 font-medium">
-              Email
-            </th>
+            <th className="px-5 py-3 font-medium">Email</th>
 
-            <th className="px-5 py-3 font-medium">
-              Fecha
-            </th>
+            <th className="px-5 py-3 font-medium">Fecha</th>
 
-            <th className="px-5 py-3 font-medium">
-              Activo
-            </th>
+            <th className="px-5 py-3 font-medium">Activo</th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-black/10 text-black">
           {customers.map((customer) => (
-            <tr
-              key={customer.id}
-              className="transition hover:bg-black/5"
-            >
-              <td className="px-5 py-4">
-                {customer.id}
-              </td>
+            <tr key={customer.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{customer.id}</td>
 
               <td className="px-5 py-4 font-medium">
-                {customer.firstname}{" "}
-                {customer.lastname}
+                {customer.firstname} {customer.lastname}
               </td>
 
-              <td className="px-5 py-4">
-                {customer.email}
-              </td>
+              <td className="px-5 py-4">{customer.email}</td>
+
+              <td className="px-5 py-4">{customer.date_add}</td>
 
               <td className="px-5 py-4">
-                {customer.date_add}
-              </td>
-
-              <td className="px-5 py-4">
-                {customer.active === "1"
-                  ? "Activo"
-                  : "Inactivo"}
+                {customer.active === "1" ? "Activo" : "Inactivo"}
               </td>
             </tr>
           ))}
@@ -106,64 +90,76 @@ function CustomersTable({
   );
 }
 
-function SuppliersTable({
-  suppliers,
-}: {
-  suppliers: PrestashopSupplier[];
-}) {
+function SuppliersTable({ suppliers }: { suppliers: PrestashopSupplier[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full divide-y divide-black text-left text-sm">
         <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
           <tr>
-            <th className="px-5 py-3 font-medium">
-              ID
-            </th>
+            <th className="px-5 py-3 font-medium">ID</th>
 
-            <th className="px-5 py-3 font-medium">
-              Nombre
-            </th>
+            <th className="px-5 py-3 font-medium">Nombre</th>
 
-            <th className="px-5 py-3 font-medium">
-              Estado
-            </th>
+            <th className="px-5 py-3 font-medium">Estado</th>
 
-            <th className="px-5 py-3 font-medium">
-              Fecha creación
-            </th>
+            <th className="px-5 py-3 font-medium">Fecha creación</th>
 
-            <th className="px-5 py-3 font-medium">
-              Última actualización
-            </th>
+            <th className="px-5 py-3 font-medium">Última actualización</th>
           </tr>
         </thead>
 
         <tbody className="divide-y divide-black/10 text-black">
           {suppliers.map((supplier) => (
-            <tr
-              key={supplier.id}
-              className="transition hover:bg-black/5"
-            >
-              <td className="px-5 py-4">
-                {supplier.id}
-              </td>
+            <tr key={supplier.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{supplier.id}</td>
 
-              <td className="px-5 py-4 font-medium">
-                {supplier.name}
-              </td>
+              <td className="px-5 py-4 font-medium">{supplier.name}</td>
 
               <td className="px-5 py-4">
-                {supplier.active === "1"
-                  ? "Activo"
-                  : "Inactivo"}
+                {supplier.active === "1" ? "Activo" : "Inactivo"}
               </td>
 
-              <td className="px-5 py-4">
-                {supplier.date_add}
-              </td>
+              <td className="px-5 py-4">{supplier.date_add}</td>
 
+              <td className="px-5 py-4">{supplier.date_upd}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ProductsTable({ products }: { products: PrestashopProduct[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">SKU / Clave</th>
+            <th className="px-5 py-3 font-medium">Nombre</th>
+            <th className="px-5 py-3 font-medium">Precio</th>
+            <th className="px-5 py-3 font-medium">Activo</th>
+            <th className="px-5 py-3 font-medium">Detalle</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-black/10 text-black">
+          {products.map((product) => (
+            <tr key={product.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4 font-medium">{product.reference}</td>
+              <td className="px-5 py-4">{getProductName(product)}</td>
+              <td className="px-5 py-4">{product.price}</td>
               <td className="px-5 py-4">
-                {supplier.date_upd}
+                {product.active === "1" ? "Activo" : "Inactivo"}
+              </td>
+              <td className="px-5 py-4">
+                <Link
+                  to={`/prestashop/productos/${encodeURIComponent(product.reference)}`}
+                  className="inline-flex items-center border border-black px-3 py-1.5 text-xs font-medium text-black transition hover:bg-black hover:text-white"
+                >
+                  Ver producto
+                </Link>
               </td>
             </tr>
           ))}
@@ -173,24 +169,54 @@ function SuppliersTable({
   );
 }
 
+function renderEndpointContent(
+  selectedEndpoint: PrestashopEndpointId,
+  customers: PrestashopCustomer[],
+  suppliers: PrestashopSupplier[],
+  products: PrestashopProduct[],
+) {
+  if (selectedEndpoint === "customers") {
+    return customers.length === 0 ? (
+      <div className="px-5 py-14 text-center text-sm text-black/60">
+        El endpoint respondió con un arreglo vacío.
+      </div>
+    ) : (
+      <CustomersTable customers={customers} />
+    );
+  }
+
+  if (selectedEndpoint === "suppliers") {
+    return suppliers.length === 0 ? (
+      <div className="px-5 py-14 text-center text-sm text-black/60">
+        El endpoint respondió con un arreglo vacío.
+      </div>
+    ) : (
+      <SuppliersTable suppliers={suppliers} />
+    );
+  }
+
+  return products.length === 0 ? (
+    <div className="px-5 py-14 text-center text-sm text-black/60">
+      El endpoint respondió con un arreglo vacío.
+    </div>
+  ) : (
+    <ProductsTable products={products} />
+  );
+}
+
 export function PrestashopPage() {
-  const [customers, setCustomers] =
-    useState<PrestashopCustomer[]>([]);
+  const [customers, setCustomers] = useState<PrestashopCustomer[]>([]);
 
-  const [suppliers, setSuppliers] =
-    useState<PrestashopSupplier[]>([]);
+  const [suppliers, setSuppliers] = useState<PrestashopSupplier[]>([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [products, setProducts] = useState<PrestashopProduct[]>([]);
 
-  const [error, setError] = useState<
-    string | null
-  >(null);
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
 
   const [selectedEndpoint, setSelectedEndpoint] =
-    useState<PrestashopEndpointId>(
-      "customers",
-    );
+    useState<PrestashopEndpointId>("customers");
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -199,25 +225,29 @@ export function PrestashopPage() {
 
     try {
       if (selectedEndpoint === "customers") {
-        const customersData =
-          await fetchPrestashopCustomers();
+        const customersData = await fetchPrestashopCustomers();
 
-        const sortedCustomers = [
-          ...customersData,
-        ].sort((a, b) => a.id - b.id);
+        const sortedCustomers = [...customersData].sort((a, b) => a.id - b.id);
 
         setCustomers(sortedCustomers);
       }
 
       if (selectedEndpoint === "suppliers") {
-        const suppliersData =
-          await fetchPrestashopSuppliers();
+        const suppliersData = await fetchPrestashopSuppliers();
 
-        const sortedSuppliers = [
-          ...suppliersData,
-        ].sort((a, b) => a.id - b.id);
+        const sortedSuppliers = [...suppliersData].sort((a, b) => a.id - b.id);
 
         setSuppliers(sortedSuppliers);
+      }
+
+      if (selectedEndpoint === "products") {
+        const productsData = await fetchPrestashopProducts();
+
+        const sortedProducts = [...productsData].sort((a, b) =>
+          a.reference.localeCompare(b.reference),
+        );
+
+        setProducts(sortedProducts);
       }
     } catch (requestError) {
       setError(
@@ -236,11 +266,9 @@ export function PrestashopPage() {
     });
   }, [loadData]);
 
-  const currentEndpoint =
-    prestashopEndpoints.find(
-      (endpoint) =>
-        endpoint.id === selectedEndpoint,
-    );
+  const currentEndpoint = prestashopEndpoints.find(
+    (endpoint) => endpoint.id === selectedEndpoint,
+  );
 
   return (
     <PageFrame
@@ -269,19 +297,17 @@ export function PrestashopPage() {
     >
       <div className="space-y-4">
         <OdooEndpointSection
-          selectedEndpoint={
-            selectedEndpoint
-          }
+          selectedEndpoint={selectedEndpoint}
           onSelectEndpoint={(value) =>
-            setSelectedEndpoint(
-              value as PrestashopEndpointId,
-            )
+            setSelectedEndpoint(value as PrestashopEndpointId)
           }
           options={prestashopEndpoints}
           title={
             selectedEndpoint === "customers"
               ? "Clientes"
-              : "Proveedores"
+              : selectedEndpoint === "suppliers"
+                ? "Proveedores"
+                : "Productos"
           }
           link={currentEndpoint?.path ?? ""}
         >
@@ -289,31 +315,19 @@ export function PrestashopPage() {
             title={
               selectedEndpoint === "customers"
                 ? "Clientes"
-                : "Proveedores"
+                : selectedEndpoint === "suppliers"
+                  ? "Proveedores"
+                  : "Productos"
             }
             loading={loading}
             error={error}
             emptyMessage="El endpoint respondió con un arreglo vacío."
           >
-            {selectedEndpoint ===
-            "customers" ? (
-              customers.length === 0 ? (
-                <div className="px-5 py-14 text-center text-sm text-black/60">
-                  El endpoint respondió con un arreglo vacío.
-                </div>
-              ) : (
-                <CustomersTable
-                  customers={customers}
-                />
-              )
-            ) : suppliers.length === 0 ? (
-              <div className="px-5 py-14 text-center text-sm text-black/60">
-                El endpoint respondió con un arreglo vacío.
-              </div>
-            ) : (
-              <SuppliersTable
-                suppliers={suppliers}
-              />
+            {renderEndpointContent(
+              selectedEndpoint,
+              customers,
+              suppliers,
+              products,
             )}
           </OdooResponseTable>
         </OdooEndpointSection>
