@@ -10,6 +10,11 @@ import { fetchOdooOrders, type OdooOrder } from "../services/odoo/orders";
 
 import { fetchOdooProducts, type OdooProduct } from "../services/odoo/products";
 
+import {
+  ObtenerCategorias,
+  type OdooCategorie,
+} from "../services/odoo/categories";
+
 const odooEndpoints = [
   {
     id: "orders",
@@ -21,6 +26,12 @@ const odooEndpoints = [
     id: "products",
     label: "Obtener productos",
     path: "http://127.0.0.1:8000/api/odoo/products",
+    active: true,
+  },
+  {
+    id: "categories",
+    label: "obtener categorias",
+    path: "http://127.0.0.1:8000/api/odoo/categories/",
     active: true,
   },
 ] as const;
@@ -111,10 +122,46 @@ function ProductsTable({ products }: { products: OdooProduct[] }) {
   );
 }
 
+function CategoriesTable({ categories }: { categories: OdooCategorie[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">ID</th>
+
+            <th className="px-5 py-3 font-medium">Nombre</th>
+
+            <th className="px-5 py-3 font-medium">Nombre completo</th>
+
+            <th className="px-5 py-3 font-medium">Padre</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-black/10 text-black">
+          {categories.map((category) => (
+            <tr key={category.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{category.id}</td>
+
+              <td className="px-5 py-4 font-medium">{category.name}</td>
+
+              <td className="px-5 py-4">{category.complete_name}</td>
+
+              <td className="px-5 py-4">{category.parent_name ?? "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function OdooPage() {
   const [orders, setOrders] = useState<OdooOrder[]>([]);
 
   const [products, setProducts] = useState<OdooProduct[]>([]);
+
+  const [categories, setCategories] = useState<OdooCategorie[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -141,6 +188,16 @@ export function OdooPage() {
         const sortedProducts = [...productsData].sort((a, b) => a.id - b.id);
 
         setProducts(sortedProducts);
+      }
+
+      if (selectedEndpoint === "categories") {
+        const categoriesData = await ObtenerCategorias();
+
+        const sortedCategories = [...categoriesData].sort(
+          (a, b) => a.id - b.id,
+        );
+
+        setCategories(sortedCategories);
       }
     } catch (requestError) {
       setError(
@@ -195,11 +252,23 @@ export function OdooPage() {
             setSelectedEndpoint(value as OdooEndpointId)
           }
           options={odooEndpoints}
-          title={selectedEndpoint === "orders" ? "Órdenes" : "Productos"}
+          title={
+            selectedEndpoint === "orders"
+              ? "Órdenes"
+              : selectedEndpoint === "products"
+                ? "Productos"
+                : "Categorías"
+          }
           link={currentEndpoint?.path ?? ""}
         >
           <OdooResponseTable
-            title={selectedEndpoint === "orders" ? "Órdenes" : "Productos"}
+            title={
+              selectedEndpoint === "orders"
+                ? "Órdenes"
+                : selectedEndpoint === "products"
+                  ? "Productos"
+                  : "Categorías"
+            }
             loading={loading}
             error={error}
             emptyMessage="El endpoint respondió con un arreglo vacío."
@@ -212,12 +281,20 @@ export function OdooPage() {
               ) : (
                 <OrdersTable orders={orders} />
               )
-            ) : products.length === 0 ? (
+            ) : selectedEndpoint === "products" ? (
+              products.length === 0 ? (
+                <div className="px-5 py-14 text-center text-sm text-black/60">
+                  El endpoint respondió con un arreglo vacío.
+                </div>
+              ) : (
+                <ProductsTable products={products} />
+              )
+            ) : categories.length === 0 ? (
               <div className="px-5 py-14 text-center text-sm text-black/60">
                 El endpoint respondió con un arreglo vacío.
               </div>
             ) : (
-              <ProductsTable products={products} />
+              <CategoriesTable categories={categories} />
             )}
           </OdooResponseTable>
         </OdooEndpointSection>

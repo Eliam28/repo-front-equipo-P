@@ -9,8 +9,8 @@ export const apiSections: ApiSection[] = [
   {
     id: "odoo",
     title: "Odoo",
-    description: "Visualiza órdenes y productos de Odoo.",
-    count: 2,
+    description: "Prueba órdenes y después agrega más endpoints aquí.",
+    count: 3,
   },
   {
     id: "prestashop",
