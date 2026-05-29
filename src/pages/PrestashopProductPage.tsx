@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
+import heroImage from "../assets/default-product.jpg";
 import { PageFrame } from "../components/PageFrame";
 import {
   fetchPrestashopProductByReference,
@@ -88,66 +89,82 @@ export function PrestashopProductPage() {
           </div>
         ) : product ? (
           <div className="space-y-6 p-5">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  SKU / Clave
-                </p>
-                <p className="mt-2 text-lg font-medium text-black">
-                  {product.reference}
-                </p>
-              </div>
+            <div className="overflow-hidden border border-black bg-white">
+              <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                <div className="relative min-h-72 border-b border-black bg-stone-100 lg:border-b-0 lg:border-r">
+                  <img
+                    src={heroImage}
+                    alt="Imagen genérica del catálogo"
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                </div>
 
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  Nombre
-                </p>
-                <p className="mt-2 text-lg font-medium text-black">
-                  {getProductName(product)}
-                </p>
-              </div>
+                <div className="flex flex-col justify-between gap-5 p-5">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="border border-black bg-stone-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        SKU / Clave
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-black">
+                        {product.reference}
+                      </p>
+                    </div>
 
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  Precio
-                </p>
-                <p className="mt-2 text-lg font-medium text-black">
-                  {product.price}
-                </p>
-              </div>
-            </div>
+                    <div className="border border-black bg-stone-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        Estado
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-black">
+                        {product.active === "1" ? "Activo" : "Inactivo"}
+                      </p>
+                    </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  ID
-                </p>
-                <p className="mt-2 text-sm text-black">{product.id}</p>
-              </div>
+                    <div className="border border-black bg-stone-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        Precio
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-black">
+                        {product.price}
+                      </p>
+                    </div>
 
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  Categoría por defecto
-                </p>
-                <p className="mt-2 text-sm text-black">
-                  {product.id_category_default}
-                </p>
-              </div>
+                    <div className="border border-black bg-stone-50 p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        Cantidad
+                      </p>
+                      <p className="mt-2 text-base font-semibold text-black">
+                        {product.quantity}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  Cantidad
-                </p>
-                <p className="mt-2 text-sm text-black">{product.quantity}</p>
-              </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="border border-black bg-white p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        ID
+                      </p>
+                      <p className="mt-2 text-sm text-black">{product.id}</p>
+                    </div>
 
-              <div className="border border-black bg-white p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-black/50">
-                  Estado
-                </p>
-                <p className="mt-2 text-sm text-black">
-                  {product.active === "1" ? "Activo" : "Inactivo"}
-                </p>
+                    <div className="border border-black bg-white p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        Categoría por defecto
+                      </p>
+                      <p className="mt-2 text-sm text-black">
+                        {product.id_category_default}
+                      </p>
+                    </div>
+
+                    <div className="border border-black bg-white p-4">
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/50">
+                        Nombre
+                      </p>
+                      <p className="mt-2 text-sm font-medium text-black">
+                        {getProductName(product)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
