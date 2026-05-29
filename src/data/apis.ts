@@ -15,13 +15,13 @@ export const apiSections: ApiSection[] = [
   {
     id: "prestashop",
     title: "Prestashop",
-    description: "Espacio reservado para catálogos, pedidos y clientes.",
-    count: 0,
+    description: "Visualiza catálogos, pedidos y clientes de Prestashop.",
+    count: 3,
   },
   {
     id: "wordpress",
     title: "WordPress",
-    description: "Espacio reservado para contenido y recursos.",
+    description: "Visualiza contenido y recursos de WordPress.",
     count: 0,
   },
 ];
