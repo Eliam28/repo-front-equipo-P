@@ -10,6 +10,8 @@ import { fetchOdooOrders, type OdooOrder } from "../services/odoo/orders";
 
 import { fetchOdooProducts, type OdooProduct } from "../services/odoo/products";
 
+import { fetchOdooStock, type OdooStock } from "../services/odoo/stock";
+
 import {
   ObtenerCategorias,
   type OdooCategorie,
@@ -26,6 +28,12 @@ const odooEndpoints = [
     id: "products",
     label: "Obtener productos",
     path: "http://127.0.0.1:8000/api/odoo/products",
+    active: true,
+  },
+  {
+    id: "stock",
+    label: "Obtener stock",
+    path: "http://127.0.0.1:8000/api/odoo/stock/",
     active: true,
   },
   {
@@ -74,6 +82,40 @@ function OrdersTable({ orders }: { orders: OdooOrder[] }) {
               </td>
 
               <td className="px-5 py-4">{order.state}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function StockTable({ stocks }: { stocks: OdooStock[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">ID</th>
+
+            <th className="px-5 py-3 font-medium">Producto</th>
+
+            <th className="px-5 py-3 font-medium">SKU</th>
+
+            <th className="px-5 py-3 font-medium">Cantidad</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y divide-black/10 text-black">
+          {stocks.map((item) => (
+            <tr key={item.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{item.id}</td>
+
+              <td className="px-5 py-4 font-medium">{item.name ?? "-"}</td>
+
+              <td className="px-5 py-4">{item.default_code ?? "-"}</td>
+
+              <td className="px-5 py-4">{item.qty_available}</td>
             </tr>
           ))}
         </tbody>
@@ -161,6 +203,8 @@ export function OdooPage() {
 
   const [products, setProducts] = useState<OdooProduct[]>([]);
 
+  const [stocks, setStocks] = useState<OdooStock[]>([]);
+
   const [categories, setCategories] = useState<OdooCategorie[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -188,6 +232,14 @@ export function OdooPage() {
         const sortedProducts = [...productsData].sort((a, b) => a.id - b.id);
 
         setProducts(sortedProducts);
+      }
+
+      if (selectedEndpoint === "stock") {
+        const stockData = await fetchOdooStock();
+
+        const sortedStock = [...stockData].sort((a, b) => a.id - b.id);
+
+        setStocks(sortedStock);
       }
 
       if (selectedEndpoint === "categories") {
@@ -257,7 +309,9 @@ export function OdooPage() {
               ? "Órdenes"
               : selectedEndpoint === "products"
                 ? "Productos"
-                : "Categorías"
+                : selectedEndpoint === "stock"
+                  ? "Stock"
+                  : "Categorías"
           }
           link={currentEndpoint?.path ?? ""}
         >
@@ -267,7 +321,9 @@ export function OdooPage() {
                 ? "Órdenes"
                 : selectedEndpoint === "products"
                   ? "Productos"
-                  : "Categorías"
+                  : selectedEndpoint === "stock"
+                    ? "Stock"
+                    : "Categorías"
             }
             loading={loading}
             error={error}
@@ -288,6 +344,14 @@ export function OdooPage() {
                 </div>
               ) : (
                 <ProductsTable products={products} />
+              )
+            ) : selectedEndpoint === "stock" ? (
+              stocks.length === 0 ? (
+                <div className="px-5 py-14 text-center text-sm text-black/60">
+                  El endpoint respondió con un arreglo vacío.
+                </div>
+              ) : (
+                <StockTable stocks={stocks} />
               )
             ) : categories.length === 0 ? (
               <div className="px-5 py-14 text-center text-sm text-black/60">
