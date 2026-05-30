@@ -26,6 +26,11 @@ import {
   type PrestashopOrder,
 } from "../services/prestashop/orders";
 
+import {
+  fetchPrestashopPayments,
+  type PrestashopPayment,
+} from "../services/prestashop/payments";
+
 const prestashopEndpoints = [
   {
     id: "customers",
@@ -49,6 +54,12 @@ const prestashopEndpoints = [
     id: "orders",
     label: "Obtener órdenes",
     path: "http://127.0.0.1:8000/api/prestashop/orders",
+    active: true,
+  },
+  {
+    id: "payments",
+    label: "Obtener pagos",
+    path: "http://127.0.0.1:8000/api/prestashop/payments",
     active: true,
   },
 ] as const;
@@ -217,6 +228,41 @@ function ProductsTable({ products }: { products: PrestashopProduct[] }) {
     </div>
   );
 }
+function PaymentsTable({ payments }: { payments: PrestashopPayment[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-black text-left text-sm">
+        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
+          <tr>
+            <th className="px-5 py-3 font-medium">ID</th>
+            <th className="px-5 py-3 font-medium">Referencia</th>
+            <th className="px-5 py-3 font-medium">Método de pago</th>
+            <th className="px-5 py-3 font-medium">Monto</th>
+            <th className="px-5 py-3 font-medium">Fecha</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-black/10 text-black">
+          {payments.map((payment) => (
+            <tr key={payment.id} className="transition hover:bg-black/5">
+              <td className="px-5 py-4">{payment.id}</td>
+              <td className="px-5 py-4 font-medium">
+                {payment.order_reference}
+              </td>
+              <td className="px-5 py-4">{payment.payment_method}</td>
+              <td className="px-5 py-4">
+                {new Intl.NumberFormat("es-MX", {
+                  style: "currency",
+                  currency: "MXN",
+                }).format(Number(payment.amount))}
+              </td>
+              <td className="px-5 py-4">{payment.date_add}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 function renderEndpointContent(
   selectedEndpoint: PrestashopEndpointId,
@@ -224,6 +270,7 @@ function renderEndpointContent(
   customers: PrestashopCustomer[],
   suppliers: PrestashopSupplier[],
   products: PrestashopProduct[],
+  payments: PrestashopPayment[],
 ) {
   if (selectedEndpoint === "orders") {
     return orders.length === 0 ? (
@@ -255,6 +302,16 @@ function renderEndpointContent(
     );
   }
 
+  if (selectedEndpoint === "payments") {
+    return payments.length === 0 ? (
+      <div className="px-5 py-14 text-center text-sm text-black/60">
+        El endpoint respondió con un arreglo vacío.
+      </div>
+    ) : (
+      <PaymentsTable payments={payments} />
+    );
+  }
+
   return products.length === 0 ? (
     <div className="px-5 py-14 text-center text-sm text-black/60">
       El endpoint respondió con un arreglo vacío.
@@ -272,6 +329,8 @@ export function PrestashopPage() {
   const [suppliers, setSuppliers] = useState<PrestashopSupplier[]>([]);
 
   const [products, setProducts] = useState<PrestashopProduct[]>([]);
+
+  const [payments, setPayments] = useState<PrestashopPayment[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -318,6 +377,12 @@ export function PrestashopPage() {
         );
 
         setProducts(sortedProducts);
+      }
+
+      if (selectedEndpoint === "payments") {
+        const paymentsData = await fetchPrestashopPayments();
+        const sortedPayments = [...paymentsData].sort((a, b) => a.id - b.id);
+        setPayments(sortedPayments);
       }
     } catch (requestError) {
       setError(
@@ -379,7 +444,9 @@ export function PrestashopPage() {
                 ? "Clientes"
                 : selectedEndpoint === "suppliers"
                   ? "Proveedores"
-                  : "Productos"
+                  : selectedEndpoint === "products"
+                    ? "Productos"
+                    : "Pagos"
           }
           link={currentEndpoint?.path ?? ""}
         >
@@ -391,7 +458,9 @@ export function PrestashopPage() {
                   ? "Clientes"
                   : selectedEndpoint === "suppliers"
                     ? "Proveedores"
-                    : "Productos"
+                    : selectedEndpoint === "products"
+                      ? "Productos"
+                      : "Pagos"
             }
             loading={loading}
             error={error}
@@ -403,6 +472,7 @@ export function PrestashopPage() {
               customers,
               suppliers,
               products,
+              payments,
             )}
           </OdooResponseTable>
         </OdooEndpointSection>

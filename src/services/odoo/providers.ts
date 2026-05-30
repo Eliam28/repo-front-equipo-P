@@ -1,5 +1,3 @@
-// src/services/odoo/providers.ts
-
 export type OdooProvider = {
   id: number;
   name: string;
