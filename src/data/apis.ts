@@ -16,7 +16,7 @@ export const apiSections: ApiSection[] = [
     id: "prestashop",
     title: "Prestashop",
     description: "Visualiza catálogos, pedidos y clientes de Prestashop.",
-    count: 4,
+    count: 5,
   },
   {
     id: "wordpress",

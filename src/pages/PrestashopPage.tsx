@@ -100,6 +100,15 @@ function OrdersTable({ orders }: { orders: PrestashopOrder[] }) {
               <td className="px-5 py-4">{order.total_paid}</td>
 
               <td className="px-5 py-4">{order.date_add}</td>
+
+              <td className="px-5 py-4">
+                <Link
+                  to={`/prestashop/ordenes/${encodeURIComponent(order.reference)}`}
+                  className="inline-flex items-center border border-black px-3 py-1.5 text-xs font-medium text-black transition hover:bg-black hover:text-white"
+                >
+                  Ver orden
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -239,6 +248,7 @@ function PaymentsTable({ payments }: { payments: PrestashopPayment[] }) {
             <th className="px-5 py-3 font-medium">Método de pago</th>
             <th className="px-5 py-3 font-medium">Monto</th>
             <th className="px-5 py-3 font-medium">Fecha</th>
+            <th className="px-5 py-3 font-medium">Detalle</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-black/10 text-black">
