@@ -2,12 +2,8 @@ export type PrestashopOrder = {
   id: number;
   reference: string;
   id_customer: number;
-  id_address_delivery: number;
-  id_address_invoice: number;
   total_paid: string;
-  total_products: string;
   date_add: string;
-  date_upd: string;
   [key: string]: unknown;
 };
 
@@ -47,4 +43,32 @@ export async function fetchPrestashopOrders(
   const data: unknown = await response.json();
 
   return parseOrdersResponse(data);
+}
+
+export async function fetchPrestashopOrderByReference(
+  reference: string,
+  signal?: AbortSignal,
+): Promise<PrestashopOrder> {
+  const response = await fetch(
+    `${ORDERS_URL}ref/${encodeURIComponent(reference)}`,
+    { signal },
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `No se pudo cargar la orden ${reference} (${response.status})`,
+    );
+  }
+
+  const data: unknown = await response.json();
+
+  const orders = parseOrdersResponse(data);
+
+  const order = orders.find((o) => o.reference === reference);
+
+  if (!order) {
+    throw new Error(`No se encontró la orden con referencia ${reference}`);
+  }
+
+  return order;
 }

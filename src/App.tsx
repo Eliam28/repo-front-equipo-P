@@ -4,6 +4,7 @@ import { OdooPage } from "./pages/OdooPage.tsx";
 import { PlaceholderPage } from "./pages/PlaceholderPage.tsx";
 import { PrestashopPage } from "./pages/PrestashopPage.tsx";
 import { PrestashopProductPage } from "./pages/PrestashopProductPage.tsx";
+import { PrestashopOrderPage } from "./pages/PrestashopOrderPage.tsx";
 
 function App() {
   return (
@@ -16,6 +17,12 @@ function App() {
           path="/prestashop/productos/:reference"
           element={<PrestashopProductPage />}
         />
+
+        <Route
+          path="/prestashop/ordenes/:reference"
+          element={<PrestashopOrderPage />}
+        />
+
         <Route
           path="/wordpress"
           element={<PlaceholderPage title="WordPress" />}
