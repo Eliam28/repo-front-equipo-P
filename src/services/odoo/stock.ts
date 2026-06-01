@@ -20,9 +20,16 @@ export async function fetchOdooStock(
 
   const data: unknown = await response.json();
 
-  if (!Array.isArray(data)) {
-    throw new Error("La respuesta de stock no tiene el formato esperado");
+  if (Array.isArray(data)) {
+    return data as OdooStock[];
   }
 
-  return data as OdooStock[];
+  if (data && typeof data === "object") {
+    const obj = data as Record<string, unknown>;
+    if (Array.isArray(obj["value"])) {
+      return obj["value"] as OdooStock[];
+    }
+  }
+
+  throw new Error("La respuesta de stock no tiene el formato esperado");
 }
