@@ -248,7 +248,6 @@ function PaymentsTable({ payments }: { payments: PrestashopPayment[] }) {
             <th className="px-5 py-3 font-medium">Método de pago</th>
             <th className="px-5 py-3 font-medium">Monto</th>
             <th className="px-5 py-3 font-medium">Fecha</th>
-            <th className="px-5 py-3 font-medium">Detalle</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-black/10 text-black">
