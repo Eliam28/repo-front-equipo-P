@@ -9,19 +9,19 @@ export const apiSections: ApiSection[] = [
   {
     id: "odoo",
     title: "Odoo",
-    description: "Prueba órdenes y después agrega más endpoints aquí.",
+    description: "Revisa órdenes, productos, categorías y proveedores.",
     count: 4,
   },
   {
     id: "prestashop",
     title: "Prestashop",
-    description: "Visualiza catálogos, pedidos y clientes de Prestashop.",
+    description: "Revisa clientes, proveedores, productos, órdenes y pagos.",
     count: 5,
   },
   {
     id: "wordpress",
     title: "WordPress",
-    description: "Visualiza contenido y recursos de WordPress.",
+    description: "Sección en proceso de implementación.",
     count: 0,
   },
 ];

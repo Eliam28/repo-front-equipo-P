@@ -418,7 +418,7 @@ export function PrestashopPage() {
   return (
     <PageFrame
       title="Prestashop"
-      subtitle="Prueba endpoints de Prestashop y agrega más rutas en esta sección."
+      subtitle="Revisa y prueba los endpoints disponibles de Prestashop."
       action={
         <div className="flex gap-2">
           <Link

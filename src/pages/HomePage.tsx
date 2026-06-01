@@ -12,11 +12,10 @@ export function HomePage() {
           <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h1 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
-                Elige una API para probar
+                Elige un servicio para probar
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-black/60 sm:text-base">
-                Un inicio simple para entrar directo a los endpoints de Odoo,
-                Prestashop o WordPress.
+                Accede rápidamente a los endpoints de Odoo, Prestashop y WordPress.
               </p>
             </div>
             <div className="border border-black px-4 py-3 text-right">

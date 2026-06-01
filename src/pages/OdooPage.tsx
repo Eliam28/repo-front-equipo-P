@@ -37,7 +37,7 @@ const odooEndpoints = [
   },
   {
     id: "categories",
-    label: "obtener categorias",
+    label: "Obtener categorias",
     path: "http://127.0.0.1:8000/api/odoo/categories/",
     active: true,
   },
@@ -329,7 +329,7 @@ export function OdooPage() {
   return (
     <PageFrame
       title="Odoo"
-      subtitle="Prueba endpoints de Odoo y agrega más rutas en esta sección."
+      subtitle="Revisa y prueba los endpoints disponibles de Odoo."
       action={
         <div className="flex gap-2">
           <Link

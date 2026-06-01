@@ -9,7 +9,7 @@ export function PlaceholderPage({ title }: PlaceholderPageProps) {
   return (
     <PageFrame
       title={title}
-      subtitle="Esta sección queda lista para sumar endpoints cuando quieras."
+      subtitle="Sección en proceso de desarrollo."
       action={
         <Link
           to="/"

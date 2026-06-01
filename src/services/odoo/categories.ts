@@ -6,7 +6,7 @@ export type OdooCategorie = {
   parent_name: string;
 };
 
-const CATEGORIES_URL = "http://127.0.0.1:8000/api/odoo/categories";
+const CATEGORIES_URL = "http://127.0.0.1:8000/api/odoo/categories/";
 
 export async function ObtenerCategorias(): Promise<OdooCategorie[]> {
   const response = await fetch(CATEGORIES_URL);
