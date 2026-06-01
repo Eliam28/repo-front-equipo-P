@@ -10,7 +10,7 @@ import { fetchOdooOrders, type OdooOrder } from "../services/odoo/orders";
 
 import { fetchOdooProducts, type OdooProduct } from "../services/odoo/products";
 
-import { fetchOdooStock, type OdooStock } from "../services/odoo/stock";
+import { fetchOdooStock } from "../services/odoo/stock";
 
 import {
   ObtenerCategorias,
@@ -33,12 +33,6 @@ const odooEndpoints = [
     id: "products",
     label: "Obtener productos",
     path: "http://127.0.0.1:8000/api/odoo/products",
-    active: true,
-  },
-  {
-    id: "stock",
-    label: "Obtener stock",
-    path: "http://127.0.0.1:8000/api/odoo/stock/",
     active: true,
   },
   {
@@ -101,40 +95,6 @@ function OrdersTable({ orders }: { orders: OdooOrder[] }) {
   );
 }
 
-function StockTable({ stocks }: { stocks: OdooStock[] }) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-black text-left text-sm">
-        <thead className="bg-white text-xs uppercase tracking-[0.16em] text-black/60">
-          <tr>
-            <th className="px-5 py-3 font-medium">ID</th>
-
-            <th className="px-5 py-3 font-medium">Producto</th>
-
-            <th className="px-5 py-3 font-medium">SKU</th>
-
-            <th className="px-5 py-3 font-medium">Cantidad</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y divide-black/10 text-black">
-          {stocks.map((item) => (
-            <tr key={item.id} className="transition hover:bg-black/5">
-              <td className="px-5 py-4">{item.id}</td>
-
-              <td className="px-5 py-4 font-medium">{item.name ?? "-"}</td>
-
-              <td className="px-5 py-4">{item.default_code ?? "-"}</td>
-
-              <td className="px-5 py-4">{item.qty_available}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function ProductsTable({ products }: { products: OdooProduct[] }) {
   return (
     <div className="overflow-x-auto">
@@ -148,6 +108,7 @@ function ProductsTable({ products }: { products: OdooProduct[] }) {
             <th className="px-5 py-3 font-medium">Código</th>
 
             <th className="px-5 py-3 font-medium">Precio</th>
+            <th className="px-5 py-3 font-medium">Cantidad</th>
           </tr>
         </thead>
 
@@ -166,6 +127,12 @@ function ProductsTable({ products }: { products: OdooProduct[] }) {
                   currency: "MXN",
                   maximumFractionDigits: 2,
                 }).format(product.list_price)}
+              </td>
+
+              <td className="px-5 py-4">
+                {typeof product.qty_available === "number"
+                  ? product.qty_available
+                  : "-"}
               </td>
             </tr>
           ))}
@@ -208,6 +175,7 @@ function CategoriesTable({ categories }: { categories: OdooCategorie[] }) {
     </div>
   );
 }
+
 function ProvidersTable({ providers }: { providers: OdooProvider[] }) {
   return (
     <div className="overflow-x-auto">
@@ -240,8 +208,6 @@ export function OdooPage() {
 
   const [products, setProducts] = useState<OdooProduct[]>([]);
 
-  const [stocks, setStocks] = useState<OdooStock[]>([]);
-
   const [categories, setCategories] = useState<OdooCategorie[]>([]);
 
   const [providers, setProviders] = useState<OdooProvider[]>([]);
@@ -268,17 +234,61 @@ export function OdooPage() {
       if (selectedEndpoint === "products") {
         const productsData = await fetchOdooProducts();
 
-        const sortedProducts = [...productsData].sort((a, b) => a.id - b.id);
+        let mergedProducts = productsData;
+
+        try {
+          const stockData = await fetchOdooStock();
+
+          const stockMap = new Map<number, number>();
+          stockData.forEach((s) => {
+            let pid: number | undefined;
+
+            const maybe = s as unknown;
+            if (maybe && typeof maybe === "object") {
+              const obj = maybe as Record<string, unknown>;
+
+              const prod = obj["product_id"];
+              if (typeof prod === "number") {
+                pid = prod;
+              } else if (Array.isArray(prod) && typeof prod[0] === "number") {
+                pid = prod[0] as number;
+              } else if (
+                prod &&
+                typeof prod === "object" &&
+                "id" in (prod as Record<string, unknown>) &&
+                typeof (prod as Record<string, unknown>)["id"] === "number"
+              ) {
+                pid = (prod as Record<string, unknown>)["id"] as number;
+              } else if ("id" in obj && typeof obj["id"] === "number") {
+                pid = obj["id"] as number;
+              }
+
+              if (typeof pid === "number") {
+                const qty = obj["qty_available"];
+                stockMap.set(
+                  pid,
+                  typeof qty === "number"
+                    ? qty
+                    : Number(obj["qty_available"] ?? 0),
+                );
+              }
+            }
+          });
+
+          mergedProducts = productsData.map((p) => ({
+            ...p,
+            qty_available: stockMap.get(p.id) ?? 0,
+          }));
+        } catch (err) {
+          // if stock fetch fails, still show products without quantities
+          // log the error to help debugging
+          console.warn("fetchOdooStock failed:", err);
+          mergedProducts = productsData.map((p) => ({ ...p }));
+        }
+
+        const sortedProducts = [...mergedProducts].sort((a, b) => a.id - b.id);
 
         setProducts(sortedProducts);
-      }
-
-      if (selectedEndpoint === "stock") {
-        const stockData = await fetchOdooStock();
-
-        const sortedStock = [...stockData].sort((a, b) => a.id - b.id);
-
-        setStocks(sortedStock);
       }
 
       if (selectedEndpoint === "categories") {
@@ -353,11 +363,9 @@ export function OdooPage() {
               ? "Órdenes"
               : selectedEndpoint === "products"
                 ? "Productos"
-                : selectedEndpoint === "stock"
-                  ? "Stock"
-                  : selectedEndpoint === "categories"
-                    ? "Categorías"
-                    : "Proveedores"
+                : selectedEndpoint === "categories"
+                  ? "Categorías"
+                  : "Proveedores"
           }
           link={currentEndpoint?.path ?? ""}
         >
@@ -367,11 +375,9 @@ export function OdooPage() {
                 ? "Órdenes"
                 : selectedEndpoint === "products"
                   ? "Productos"
-                  : selectedEndpoint === "stock"
-                    ? "Stock"
-                    : selectedEndpoint === "categories"
-                      ? "Categorías"
-                      : "Proveedores"
+                  : selectedEndpoint === "categories"
+                    ? "Categorías"
+                    : "Proveedores"
             }
             loading={loading}
             error={error}
@@ -392,14 +398,6 @@ export function OdooPage() {
                 </div>
               ) : (
                 <ProductsTable products={products} />
-              )
-            ) : selectedEndpoint === "stock" ? (
-              stocks.length === 0 ? (
-                <div className="px-5 py-14 text-center text-sm text-black/60">
-                  El endpoint respondió con un arreglo vacío.
-                </div>
-              ) : (
-                <StockTable stocks={stocks} />
               )
             ) : selectedEndpoint === "categories" ? (
               categories.length === 0 ? (

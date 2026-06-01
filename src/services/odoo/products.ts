@@ -3,6 +3,7 @@ export type OdooProduct = {
   name: string;
   list_price: number;
   default_code: string | null;
+  qty_available?: number;
 };
 
 const PRODUCTS_URL = "http://127.0.0.1:8000/api/odoo/products/";
